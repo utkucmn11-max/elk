@@ -1,68 +1,86 @@
 import streamlit as st
+import os
+from PIL import Image
 
-# Sayfa yapılandırması
-st.set_page_config(page_title="Pano Elemanları Bilgi Yarışması", layout="centered")
+# Sayfa Ayarları
+st.set_page_config(page_title="Pano Elemanı Testi", page_icon="🔌")
 
-# Sabit veri seti (Görsel URL'leri ve Doğru Cevaplar)
-# Not: Buradaki URL'leri gerçek görsellerle değiştirmelisin.
-QUESTIONS = [
-    {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Miniature_circuit_breaker_2_pole.jpg/800px-Miniature_circuit_breaker_2_pole.jpg",
-        "answer": "sigorta",
-        "hint": "Devreyi aşırı akımdan korur."
-    },
-    {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Contactor_3_phase.jpg/800px-Contactor_3_phase.jpg",
-        "answer": "kontaktör",
-        "hint": "Büyük güçteki elektrik devrelerini anahtarlamak için kullanılır."
-    },
-    {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Thermal_overload_relay.jpg/800px-Thermal_overload_relay.jpg",
-        "answer": "termik röle",
-        "hint": "Motorları aşırı ısınmaya karşı korur."
-    }
-]
+# --- 1'DEN 24'E KADAR EŞLEŞTİRME LİSTESİ ---
+# Buradaki cevapları senin klasöründeki numara sırasına göre düzenleyebilirsin.
+CEVAP_ANAHTARI = {
+    "1": "Bir fazlı sigorta",
+    "2": "Üç fazlı sigorta",
+    "3": "Kaçak akım rölesi",
+    "4": "Kontaktör",
+    "5": "Termik röle",
+    "6": "Zaman rölesi",
+    "7": "Motor koruma şalteri",
+    "8": "Sinyal lambası",
+    "9": "Start butonu",
+    "10": "Stop butonu",
+    "11": "Acil durdurma butonu",
+    "12": "Pako şalter",
+    "13": "Akım transformatörü",
+    "14": "Klemens",
+    "15": "Ray",
+    "16": "Kablo kanalı",
+    "17": "Ampermetre",
+    "18": "Voltmetre",
+    "19": "Faz sırası rölesi",
+    "20": "Sıvı seviye rölesi",
+    "21": "Fotosel röle",
+    "22": "Kondansatör",
+    "23": "Parafudr",
+    "24": "Şebeke jeneratör enversör şalter"
+}
 
-# Session State (Oturum Durumu) Yönetimi
-if 'current_step' not in st.session_state:
-    st.session_state.current_step = 0
-if 'result' not in st.session_state:
-    st.session_state.result = None
+# --- AYARLAR ---
+KLASOR_ADI = "yeni klasör"
 
-def check_answer():
-    user_answer = st.session_state.user_input.lower().strip()
-    correct_answer = QUESTIONS[st.session_state.current_step]['answer']
+# Session State
+if 'soru_no' not in st.session_state:
+    st.session_state.soru_no = 1
+if 'durum' not in st.session_state:
+    st.session_state.durum = None
+
+def kontrol():
+    tahmin = st.session_state.tahmin_input.lower().strip()
+    dogru_cevap = CEVAP_ANAHTARI[str(st.session_state.soru_no)].lower()
     
-    if user_answer == correct_answer:
-        st.session_state.result = "correct"
+    # Esnek kontrol (Tahmin doğru cevabın içinde geçiyorsa)
+    if tahmin in dogru_cevap and len(tahmin) > 2:
+        st.session_state.durum = "dogru"
     else:
-        st.session_state.result = "wrong"
+        st.session_state.durum = "yanlis"
 
-def next_question():
-    st.session_state.current_step = (st.session_state.current_step + 1) % len(QUESTIONS)
-    st.session_state.result = None
-    st.session_state.user_input = ""
+def sonraki():
+    if st.session_state.soru_no < 24:
+        st.session_state.soru_no += 1
+    else:
+        st.session_state.soru_no = 1 # Başa dön
+    st.session_state.durum = None
+    st.session_state.tahmin_input = ""
 
-# Arayüz Başlığı
-st.title("⚡ Pano Elemanlarını Tanı!")
-st.write(f"Soru: {st.session_state.current_step + 1} / {len(QUESTIONS)}")
+# --- ARAYÜZ ---
+st.title("⚡ Pano Elemanlarını Tanıyalım")
+st.write(f"### Soru: {st.session_state.soru_no} / 24")
 
-# Görseli Göster
-current_q = QUESTIONS[st.session_state.current_step]
-st.image(current_q['image'], caption="Bu eleman nedir?", use_container_width=True)
+# Resim Yükleme Mantığı
+resim_adi = f"{st.session_state.soru_no}.jpg" # Dosya uzantın .png ise burayı .png yap
+resim_yolu = os.path.join(KLASOR_ADI, resim_adi)
 
-# Girdi Alanı
-st.text_input("Tahminini buraya yaz:", key="user_input", on_change=check_answer)
-
-# Sonuç Kontrolü ve Renkli Geri Bildirim
-if st.session_state.result == "correct":
-    st.success(f"DOĞRU! ✅ Bu bir: **{current_q['answer'].upper()}**")
-    st.balloons()
-    st.button("Sonraki Elemana Geç ➡️", on_click=next_question)
-
-elif st.session_state.result == "wrong":
-    st.error(f"YANLIŞ! ❌ Doğru cevap: **{current_q['answer'].upper()}**")
-    st.button("Sonraki Elemana Geç ➡️", on_click=next_question)
-
-# Alt Bilgi
-st.info(f"İpucu: {current_q['hint']}")
+if os.path.exists(resim_yolu):
+    img = Image.open(resim_yolu)
+    st.image(img, use_container_width=True, caption=f"Görsel No: {resim_adi}")
+    
+    st.text_input("Bu elemanın adı nedir?", key="tahmin_input", on_change=kontrol)
+    
+    if st.session_state.durum == "dogru":
+        st.success(f"TEBRİKLER! ✅ Doğru Cevap: **{CEVAP_ANAHTARI[str(st.session_state.soru_no)]}**")
+        st.button("Sonraki Eleman ➡️", on_click=sonraki)
+        
+    elif st.session_state.durum == "yanlis":
+        st.error(f"YANLIŞ! ❌ Doğru Cevap: **{CEVAP_ANAHTARI[str(st.session_state.soru_no)]}**")
+        st.button("Sıradakine Geç ➡️", on_click=sonraki)
+else:
+    st.error(f"Hata: '{resim_yolu}' dosyası bulunamadı. Lütfen '{KLASOR_ADI}' klasöründe 1.jpg, 2.jpg... şeklinde resimlerin olduğundan emin ol.")
