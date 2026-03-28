@@ -97,7 +97,7 @@ with col_input:
     st.write("## ")
     
     st.subheader("Bu elemanı tanıdınız mı?")
-    st.text_input("Eleman adını buraya yazın:", key="tahmin_input", on_change=kontrol, placeholder="Örneğin: Sigorta...")
+    st.text_input("Eleman adını buraya yazın:", key="tahmin_input", on_change=kontrol, placeholder="")
 
     # Onay Butonu
     if st.session_state.durum is None:
