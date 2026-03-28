@@ -3,41 +3,41 @@ import os
 from PIL import Image
 
 # Sayfa Ayarları
-st.set_page_config(page_title="Pano Elemanı Testi", page_icon="🔌")
+st.set_page_config(page_title="Pano Elemanı Testi (PNG)", page_icon="🖼️")
 
-# --- 1'DEN 24'E KADAR EŞLEŞTİRME LİSTESİ ---
-# Buradaki cevapları senin klasöründeki numara sırasına göre düzenleyebilirsin.
+# --- CEVAP ANAHTARI (1.png'den 24.png'ye kadar) ---
+# Kendi resim sıralamana göre buradaki isimleri düzenle.
 CEVAP_ANAHTARI = {
     "1": "Bir fazlı sigorta",
     "2": "Üç fazlı sigorta",
-    "3": "Kaçak akım rölesi",
-    "4": "Kontaktör",
-    "5": "Termik röle",
-    "6": "Zaman rölesi",
-    "7": "Motor koruma şalteri",
-    "8": "Sinyal lambası",
-    "9": "Start butonu",
-    "10": "Stop butonu",
-    "11": "Acil durdurma butonu",
-    "12": "Pako şalter",
-    "13": "Akım transformatörü",
-    "14": "Klemens",
-    "15": "Ray",
-    "16": "Kablo kanalı",
-    "17": "Ampermetre",
-    "18": "Voltmetre",
-    "19": "Faz sırası rölesi",
-    "20": "Sıvı seviye rölesi",
-    "21": "Fotosel röle",
-    "22": "Kondansatör",
-    "23": "Parafudr",
-    "24": "Şebeke jeneratör enversör şalter"
+    "3": "NH bıçaklı sigorta",
+    "4": "Kaçak akım rölesi",
+    "5": "Üç fazlı paket şalter",
+    "6": "Termik manyetik şalter",
+    "7": "Akım transformatörü",
+    "8": "Bir fazlı aktif sayaç",
+    "9": "Üç fazlı aktif sayaç",
+    "10": "Üç fazlı kombi sayaç",
+    "11": "Ampermetre",
+    "12": "Voltmetre",
+    "13": "Sinyal lambası",
+    "14": "Start butonu",
+    "15": "Stop butonu",
+    "16": "Jog buton",
+    "17": "Aşırı akım rölesi",
+    "18": "Motor koruma şalteri",
+    "19": "Kontaktör",
+    "20": "Zaman rölesi",
+    "21": "Motor koruma rölesi",
+    "22": "Faz sırası rölesi",
+    "23": "Kondansatör",
+    "24": "Alçak gerilim parafudr"
 }
 
 # --- AYARLAR ---
 KLASOR_ADI = "yeni klasör"
 
-# Session State
+# Session State Yönetimi
 if 'soru_no' not in st.session_state:
     st.session_state.soru_no = 1
 if 'durum' not in st.session_state:
@@ -47,7 +47,7 @@ def kontrol():
     tahmin = st.session_state.tahmin_input.lower().strip()
     dogru_cevap = CEVAP_ANAHTARI[str(st.session_state.soru_no)].lower()
     
-    # Esnek kontrol (Tahmin doğru cevabın içinde geçiyorsa)
+    # Esnek kontrol (Tahmin doğru cevabın içinde geçiyorsa doğru say)
     if tahmin in dogru_cevap and len(tahmin) > 2:
         st.session_state.durum = "dogru"
     else:
@@ -57,30 +57,39 @@ def sonraki():
     if st.session_state.soru_no < 24:
         st.session_state.soru_no += 1
     else:
-        st.session_state.soru_no = 1 # Başa dön
+        st.session_state.soru_no = 1 # 24 bitince başa dön
     st.session_state.durum = None
     st.session_state.tahmin_input = ""
 
 # --- ARAYÜZ ---
-st.title("⚡ Pano Elemanlarını Tanıyalım")
-st.write(f"### Soru: {st.session_state.soru_no} / 24")
+st.title("⚡ Pano Elemanlarını Tanıyalım (PNG Versiyon)")
+st.divider()
 
-# Resim Yükleme Mantığı
-resim_adi = f"{st.session_state.soru_no}.jpg" # Dosya uzantın .png ise burayı .png yap
+# Dinamik Dosya Yolu (1.png, 2.png...)
+resim_adi = f"{st.session_state.soru_no}.png"
 resim_yolu = os.path.join(KLASOR_ADI, resim_adi)
 
-if os.path.exists(resim_yolu):
-    img = Image.open(resim_yolu)
-    st.image(img, use_container_width=True, caption=f"Görsel No: {resim_adi}")
-    
-    st.text_input("Bu elemanın adı nedir?", key="tahmin_input", on_change=kontrol)
+col1, col2 = st.columns([1, 1])
+
+with col1:
+    st.write(f"### Soru: {st.session_state.soru_no} / 24")
+    if os.path.exists(resim_yolu):
+        img = Image.open(resim_yolu)
+        st.image(img, use_container_width=True, caption=f"Dosya: {resim_adi}")
+    else:
+        st.error(f"⚠️ Hata: '{resim_yolu}' bulunamadı! Lütfen klasör adını ve dosya formatını kontrol et.")
+
+with col2:
+    st.text_input("Bu hangi pano elemanı?", key="tahmin_input", on_change=kontrol)
     
     if st.session_state.durum == "dogru":
-        st.success(f"TEBRİKLER! ✅ Doğru Cevap: **{CEVAP_ANAHTARI[str(st.session_state.soru_no)]}**")
-        st.button("Sonraki Eleman ➡️", on_click=sonraki)
+        st.success(f"HARİKA! ✅\n\nCevap: **{CEVAP_ANAHTARI[str(st.session_state.soru_no)]}**")
+        st.button("Sonraki Görsele Geç ➡️", on_click=sonraki)
+        st.balloons()
         
     elif st.session_state.durum == "yanlis":
-        st.error(f"YANLIŞ! ❌ Doğru Cevap: **{CEVAP_ANAHTARI[str(st.session_state.soru_no)]}**")
-        st.button("Sıradakine Geç ➡️", on_click=sonraki)
-else:
-    st.error(f"Hata: '{resim_yolu}' dosyası bulunamadı. Lütfen '{KLASOR_ADI}' klasöründe 1.jpg, 2.jpg... şeklinde resimlerin olduğundan emin ol.")
+        st.error(f"YANLIŞ! ❌\n\nDoğru cevap: **{CEVAP_ANAHTARI[str(st.session_state.soru_no)]}**")
+        st.button("Devam Et ➡️", on_click=sonraki)
+
+st.divider()
+st.info("İpucu: Tahminini yazıp Enter'a basabilirsin.")
