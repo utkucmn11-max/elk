@@ -3,12 +3,13 @@ import os
 from PIL import Image
 
 # Sayfa Ayarları
-st.set_page_config(page_title="Pano Elemanı Eğitimi", page_icon="⚡")
+st.set_page_config(page_title="Pano Elemanı Testi", page_icon="⚡")
 
-# --- MEVCUT DİZİN AYARI (Senin eklediğin kısım) ---
+# --- MEVCUT DİZİN AYARI ---
 base_path = os.path.dirname(__file__)
 
 # --- CEVAP ANAHTARI ---
+# Resimlerin 1.jpg, 2.jpg... sırasına göre isimleri kontrol et
 CEVAP_ANAHTARI = {
     "1": "Bir fazlı sigorta",
     "2": "Üç fazlı sigorta",
@@ -44,6 +45,8 @@ if 'durum' not in st.session_state:
 def kontrol():
     tahmin = st.session_state.tahmin_input.lower().strip()
     dogru_cevap = CEVAP_ANAHTARI[str(st.session_state.soru_no)].lower()
+    
+    # Esnek kontrol
     if tahmin in dogru_cevap and len(tahmin) > 2:
         st.session_state.durum = "dogru"
     else:
@@ -55,24 +58,23 @@ def sonraki():
     st.session_state.tahmin_input = ""
 
 # --- ARAYÜZ ---
-st.title("🛡️ Pano Elemanları Uzmanlık Testi")
+st.title("🛡️ Pano Elemanları Eğitim Sistemi")
 
-# Dosya yolunu senin istediğin gibi dinamik oluşturuyoruz
-resim_adi = f"({st.session_state.soru_no}).png"
-image_path = os.path.join(base_path, "yeni klasör", resim_adi)
+# Fotoğraf adı artık sadece sayı ve .jpg (Örn: 1.jpg)
+resim_adi = f"{st.session_state.soru_no}.jpg"
+image_path = os.path.join(base_path, resim_adi)
 
 col1, col2 = st.columns([1, 1])
 
 with col1:
     st.write(f"### Soru: {st.session_state.soru_no} / 24")
     
-    # Dosya kontrolü ve gösterme
     if os.path.exists(image_path):
         img = Image.open(image_path)
         st.image(img, use_container_width=True)
     else:
         st.error(f"Dosya bulunamadı: {image_path}")
-        st.info("İpucu: GitHub'da klasör isminin 'yeni klasör' ve dosya adının '(1).png' olduğundan emin ol.")
+        st.info("Lütfen fotoğrafların kodla aynı klasörde ve '1.jpg' gibi isimlendirilmiş olduğundan emin ol.")
 
 with col2:
     st.text_input("Bu pano elemanının adı nedir?", key="tahmin_input", on_change=kontrol)
