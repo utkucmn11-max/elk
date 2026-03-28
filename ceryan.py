@@ -103,5 +103,5 @@ with col_input:
         
     elif st.session_state.durum == "yanlis":
         st.error(f"### YANLIŞ! ❌\nDoğru Cevap: **{CEVAP_ANAHTARI[str(aktif_no)]}**")
-        st.button("DEVAM ET ➡️", on_click=sonraki
-                 st.caption("© 2026 Utku Çimen")
+        st.button("DEVAM ET ➡️", on_click=sonraki)
+         st.caption("© 2026 Utku Çimen")
