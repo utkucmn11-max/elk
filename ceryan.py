@@ -4,7 +4,7 @@ import random
 from PIL import Image
 
 # Sayfa Ayarları - Geniş mod ve Başlık
-st.set_page_config(page_title="Pano Elemanları Sınavı", page_icon="⚡", layout="wide")
+st.set_page_config(page_title="Pano Elemanları ", page_icon="⚡", layout="wide")
 
 # --- MEVCUT DİZİN ---
 base_path = os.path.dirname(__file__)
@@ -103,10 +103,3 @@ with col_input:
         st.error(f"### YANLIŞ! ❌\nDoğru Cevap: **{CEVAP_ANAHTARI[str(aktif_no)]}**")
         st.button("DEVAM ET ➡️", on_click=sonraki)
     
-    st.info("💡 İpucu: Küçük harf, büyük harf veya Türkçe karakter (ö/o) fark etmez!")
-
-st.divider()
-if st.button("🔄 Testi Sıfırla ve Karıştır"):
-    del st.session_state.soru_sirasi
-    st.session_state.puan = 0
-    st.rerun()
