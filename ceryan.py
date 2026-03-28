@@ -99,6 +99,5 @@ with col2:
         st.button("Atla ve Devam Et ➡️", on_click=sonraki)
 
 st.divider()
-):
     del st.session_state.soru_sirasi
     st.rerun()
