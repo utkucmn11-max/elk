@@ -3,10 +3,12 @@ import os
 from PIL import Image
 
 # Sayfa Ayarları
-st.set_page_config(page_title="Pano Elemanı Testi", page_icon="⚙️")
+st.set_page_config(page_title="Pano Elemanı Eğitimi", page_icon="⚡")
 
-# --- CEVAP ANAHTARI (Tablodaki Sıraya Göre) ---
-# Eğer resim sıran farklıysa buradaki isimlerin yerini değiştirebilirsin.
+# --- MEVCUT DİZİN AYARI (Senin eklediğin kısım) ---
+base_path = os.path.dirname(__file__)
+
+# --- CEVAP ANAHTARI ---
 CEVAP_ANAHTARI = {
     "1": "Bir fazlı sigorta",
     "2": "Üç fazlı sigorta",
@@ -34,8 +36,6 @@ CEVAP_ANAHTARI = {
     "24": "Alçak gerilim parafudr"
 }
 
-KLASOR_ADI = "yeni klasör"
-
 if 'soru_no' not in st.session_state:
     st.session_state.soru_no = 1
 if 'durum' not in st.session_state:
@@ -44,8 +44,6 @@ if 'durum' not in st.session_state:
 def kontrol():
     tahmin = st.session_state.tahmin_input.lower().strip()
     dogru_cevap = CEVAP_ANAHTARI[str(st.session_state.soru_no)].lower()
-    
-    # Esnek kontrol: Tahmin cevabın içinde geçiyorsa doğru say
     if tahmin in dogru_cevap and len(tahmin) > 2:
         st.session_state.durum = "dogru"
     else:
@@ -57,32 +55,34 @@ def sonraki():
     st.session_state.tahmin_input = ""
 
 # --- ARAYÜZ ---
-st.title("⚡ Pano Elemanlarını Tanıyalım")
-st.write(f"### Soru: {st.session_state.soru_no} / 24")
+st.title("🛡️ Pano Elemanları Uzmanlık Testi")
 
-# Dosya adını (1).png formatında oluşturuyoruz
+# Dosya yolunu senin istediğin gibi dinamik oluşturuyoruz
 resim_adi = f"({st.session_state.soru_no}).png"
-resim_yolu = os.path.join(KLASOR_ADI, resim_adi)
+image_path = os.path.join(base_path, "yeni klasör", resim_adi)
 
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    if os.path.exists(resim_yolu):
-        img = Image.open(resim_yolu)
-        st.image(img, use_container_width=True, caption=f"Dosya: {resim_adi}")
+    st.write(f"### Soru: {st.session_state.soru_no} / 24")
+    
+    # Dosya kontrolü ve gösterme
+    if os.path.exists(image_path):
+        img = Image.open(image_path)
+        st.image(img, use_container_width=True)
     else:
-        st.error(f"⚠️ Hata: '{resim_yolu}' dosyası bulunamadı!")
-        st.info("Lütfen 'yeni klasör' içinde resimlerin (1).png, (2).png... şeklinde olduğundan emin ol.")
+        st.error(f"Dosya bulunamadı: {image_path}")
+        st.info("İpucu: GitHub'da klasör isminin 'yeni klasör' ve dosya adının '(1).png' olduğundan emin ol.")
 
 with col2:
-    st.text_input("Bu hangi pano elemanı?", key="tahmin_input", on_change=kontrol)
+    st.text_input("Bu pano elemanının adı nedir?", key="tahmin_input", on_change=kontrol)
     
     if st.session_state.durum == "dogru":
-        st.success(f"DOĞRU! ✅\n\nCevap: **{CEVAP_ANAHTARI[str(st.session_state.soru_no)]}**")
-        st.button("Sonraki ➡️", on_click=sonraki)
+        st.success(f"BİLDİN! ✅\n\nCevap: **{CEVAP_ANAHTARI[str(st.session_state.soru_no)]}**")
+        st.button("Sonraki Elemana Geç ➡️", on_click=sonraki)
         
     elif st.session_state.durum == "yanlis":
         st.error(f"YANLIŞ! ❌\n\nDoğru cevap: **{CEVAP_ANAHTARI[str(st.session_state.soru_no)]}**")
-        st.button("Atla ➡️", on_click=sonraki)
+        st.button("Atla ve Devam Et ➡️", on_click=sonraki)
 
 st.divider()
