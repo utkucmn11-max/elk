@@ -111,12 +111,3 @@ with col_input:
     elif st.session_state.durum == "yanlis":
         st.error(f"### YANLIŞ! ❌\nDoğru Cevap: **{CEVAP_ANAHTARI[str(aktif_no)]}**")
         st.button("DEVAM ET ➡️", on_click=sonraki)
-    
-    st.write("---")
-    st.info("💡 İpucu: Boşluk bıraksan da bırakmasan da (örn: 'kacakanım' veya 'kacak akım') doğru kabul edilir!")
-
-st.divider()
-if st.button("🔄 Testi Sıfırla ve Karıştır"):
-    del st.session_state.soru_sirasi
-    st.session_state.puan = 0
-    st.rerun()
