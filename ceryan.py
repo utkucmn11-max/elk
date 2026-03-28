@@ -32,18 +32,26 @@ if 'soru_sirasi' not in st.session_state:
 if 'durum' not in st.session_state:
     st.session_state.durum = None
 
+# --- GELİŞMİŞ KARAKTER VE BOŞLUK NORMALİZASYONU ---
 def normalize_text(text):
+    # Türkçe büyük/küçük harf uyumu
     text = text.replace('İ', 'i').replace('I', 'ı').lower()
+    # Türkçe karakterleri standart harflere dönüştür
     mapping = str.maketrans("çğışıöü", "cgisiou")
-    return text.translate(mapping).strip()
+    text = text.translate(mapping)
+    # TÜM BOŞLUKLARI SİL (Kelime birleşik olsa da kabul etmesi için)
+    return text.replace(" ", "").strip()
 
 def kontrol():
     if not st.session_state.tahmin_input:
         return
     no = st.session_state.soru_sirasi[st.session_state.liste_index]
+    
+    # Boşluksuz ve temizlenmiş hallerini kıyasla
     tahmin = normalize_text(st.session_state.tahmin_input)
     gercek = normalize_text(CEVAP_ANAHTARI[str(no)])
     
+    # Karşılaştırma Mantığı
     if (tahmin in gercek or gercek in tahmin) and len(tahmin) >= 3:
         st.session_state.durum = "dogru"
         st.session_state.puan += 5
@@ -75,7 +83,6 @@ st.divider()
 aktif_no = st.session_state.soru_sirasi[st.session_state.liste_index]
 img_path = os.path.join(base_path, f"{aktif_no}.jpg")
 
-# Sütun Oranları (Fotoğraf %65 - Etkileşim %35)
 col_resim, col_input = st.columns([1.8, 1], gap="large")
 
 with col_resim:
@@ -90,9 +97,9 @@ with col_input:
     st.write("## ")
     
     st.subheader("Bu elemanı tanıdınız mı?")
-    st.text_input("Eleman adını buraya yazın:", key="tahmin_input", on_change=kontrol, placeholder="")
+    st.text_input("Eleman adını buraya yazın:", key="tahmin_input", on_change=kontrol, placeholder="Örneğin: Sigorta...")
 
-    # --- EKLEDİĞİMİZ ONAY BUTONU ---
+    # Onay Butonu
     if st.session_state.durum is None:
         st.button("✅ Cevabı Onayla", on_click=kontrol)
 
@@ -104,4 +111,12 @@ with col_input:
     elif st.session_state.durum == "yanlis":
         st.error(f"### YANLIŞ! ❌\nDoğru Cevap: **{CEVAP_ANAHTARI[str(aktif_no)]}**")
         st.button("DEVAM ET ➡️", on_click=sonraki)
-        
+    
+    st.write("---")
+    st.info("💡 İpucu: Boşluk bıraksan da bırakmasan da (örn: 'kacakanım' veya 'kacak akım') doğru kabul edilir!")
+
+st.divider()
+if st.button("🔄 Testi Sıfırla ve Karıştır"):
+    del st.session_state.soru_sirasi
+    st.session_state.puan = 0
+    st.rerun()
