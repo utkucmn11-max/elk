@@ -98,7 +98,3 @@ with col2:
         st.error(f"### YANLIŞ! ❌\n\nDoğru Cevap: **{CEVAP_ANAHTARI[str(aktif_resim_no)]}**")
         st.button("Atla ve Devam Et ➡️", on_click=sonraki)
 
-st.divider()
-if st.button("Listeyi Şimdi Yeniden Karıştır 🔄"):
-    del st.session_state.soru_sirasi
-    st.rerun()
