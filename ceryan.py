@@ -3,7 +3,7 @@ import os
 import random
 from PIL import Image
 
-# Sayfa Ayarları
+# Sayfa Ayarları - Geniş mod ve Başlık
 st.set_page_config(page_title="Pano Elemanları Sınavı", page_icon="⚡", layout="wide")
 
 # --- MEVCUT DİZİN ---
@@ -21,7 +21,7 @@ CEVAP_ANAHTARI = {
     "22": "Faz sırası rölesi", "23": "Kondansatör", "24": "Alçak gerilim parafudr"
 }
 
-# --- DURUM YÖNETİMİ ---
+# --- KARMA VE DURUM YÖNETİMİ ---
 if 'soru_sirasi' not in st.session_state:
     liste = list(range(1, 25))
     random.shuffle(liste)
@@ -58,48 +58,49 @@ def sonraki():
     st.session_state.durum = None
     st.session_state.tahmin_input = ""
 
-# --- ARAYÜZ ---
-st.title("🛡️ Elektrik Pano Elemanları Eğitim Portalı")
-st.markdown(f"**Puan:** `{st.session_state.puan}` | **Soru:** `{st.session_state.liste_index + 1} / 24`")
+# --- ARAYÜZ TASARIMI ---
+st.markdown("""
+    <style>
+    .main { background-color: #f5f7f9; }
+    .stTextInput > div > div > input { font-size: 20px; padding: 15px; }
+    .stButton > button { width: 100%; border-radius: 10px; height: 3em; font-weight: bold; }
+    </style>
+    """, unsafe_allow_html=True)
+
+st.title("🛡️ Elektrik Pano Elemanları Uzmanlık Eğitimi")
+st.markdown(f"**Mevcut Puanınız:** `{st.session_state.puan}` | **Soru:** `{st.session_state.liste_index + 1} / 24`")
 st.divider()
 
+# Aktif Soru Verileri
 aktif_no = st.session_state.soru_sirasi[st.session_state.liste_index]
 img_path = os.path.join(base_path, f"{aktif_no}.jpg")
 
-# Sütunları dengeleyelim
-col_resim, col_input = st.columns([1.6, 1], gap="large")
+# Sütun Oranları (Fotoğraf %65 - Etkileşim %35)
+col_resim, col_input = st.columns([1.8, 1], gap="large")
 
 with col_resim:
     if os.path.exists(img_path):
         img = Image.open(img_path)
-        st.image(img, use_container_width=True, caption=f"Eleman No: {aktif_no}")
+        st.image(img, use_column_width=True)
     else:
         st.error(f"Görsel bulunamadı: {aktif_no}.jpg")
 
 with col_input:
-    # Görselin yanına dikeyde ortalamak için boşluk
-    st.markdown("<br><br><br>", unsafe_allow_html=True)
+    st.write("## ") 
+    st.write("## ")
     
-    st.subheader("Bu elemanın adı nedir?")
-    # Cevap kutucuğu
-    st.text_input("Tahmininizi yazın:", key="tahmin_input", placeholder="Örn: Kontaktör", label_visibility="collapsed")
-    
-    # Onaylama Butonu (Cevap verilmediyse gösterilir)
-    if st.session_state.durum is None:
-        st.button("✅ Cevabı Onayla", on_click=kontrol, use_container_width=True)
+    st.subheader("Bu elemanı tanıdınız mı?")
+    st.text_input("Eleman adını buraya yazın:", key="tahmin_input", on_change=kontrol, placeholder="")
 
-    # Sonuç Ekranı ve Sonraki Butonu
+    # --- EKLEDİĞİMİZ ONAY BUTONU ---
+    if st.session_state.durum is None:
+        st.button("✅ Cevabı Onayla", on_click=kontrol)
+
     if st.session_state.durum == "dogru":
-        st.success(f"### DOĞRU! ✅\n**{CEVAP_ANAHTARI[str(aktif_no)]}**")
-        st.button("Sıradaki Soru ➡️", on_click=sonraki, use_container_width=True)
+        st.success(f"### MÜKEMMEL! ✅\n**{CEVAP_ANAHTARI[str(aktif_no)]}**")
+        st.button("SONRAKİ SORU ➡️", on_click=sonraki)
         st.balloons()
         
     elif st.session_state.durum == "yanlis":
         st.error(f"### YANLIŞ! ❌\nDoğru Cevap: **{CEVAP_ANAHTARI[str(aktif_no)]}**")
-        st.button("Devam Et ➡️", on_click=sonraki, use_container_width=True)
-
-st.divider()
-if st.sidebar.button("🔄 Testi Sıfırla"):
-    del st.session_state.soru_sirasi
-    st.session_state.puan = 0
-    st.rerun()
+        st.button("DEVAM ET ➡️", on_click=sonraki)
