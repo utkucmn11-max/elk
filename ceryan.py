@@ -10,7 +10,7 @@ base_path = os.path.dirname(__file__)
 
 # --- CEVAP ANAHTARI ---
 CEVAP_ANAHTARI = {
-    "(1)": "Bir fazlı sigorta",
+    "1": "Bir fazlı sigorta",
     "2": "Üç fazlı sigorta",
     "3": "NH bıçaklı sigorta",
     "4": "Kaçak akım rölesi",
